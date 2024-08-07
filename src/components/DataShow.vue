@@ -1,0 +1,264 @@
+<template>
+  <div class="DataShow">
+    <!-- 图片的列表展示 -->
+    <div class="container">
+      <template class="he" v-for="(cardData, index) in cardDataArray" :key="cardData.file_id">
+        <!-- 0 图片 -->
+        <div class="box" v-if="cardData.file_type == 0">
+          <a-badge-ribbon :text="cardData.file_suffix" style="font-weight: 600; cursor: pointer">
+            <div class="card" @click="showDrawer(index)">
+              <img :src="cardData.file_link" alt="" />
+              <span>
+                <i>{{ cardData.file_name }}</i>
+              </span>
+            </div>
+          </a-badge-ribbon>
+        </div>
+        <!-- 1 视频 -->
+        <div class="box" v-else-if="cardData.file_type == 1">
+          <a-badge-ribbon :text="cardData.file_suffix" color="pink" style="font-weight: 600">
+            <div class="card" @click="showDrawer(index)">
+              <i class="iconfont icon-bofang"></i>
+              <video :src="cardData.file_link"></video>
+              <span>
+                <i>{{ cardData.file_name }}</i>
+              </span>
+            </div>
+          </a-badge-ribbon>
+        </div>
+        <!-- 2 音乐 -->
+        <div class="box" v-else-if="cardData.file_type == 2">
+          <a-badge-ribbon :text="cardData.file_suffix" color="cyan" style="font-weight: 600">
+            <div class="card" @click="showDrawer(index)">
+              <img src="../assets/imgs/2.gif" alt="" />
+              <span>
+                <i>{{ cardData.file_name }}</i>
+              </span>
+            </div>
+          </a-badge-ribbon>
+        </div>
+        <!-- 3 压缩包 -->
+        <div class="box" v-else-if="cardData.file_type == 3">
+          <a-badge-ribbon :text="cardData.file_suffix" color="#52c41a" style="font-weight: 600">
+            <div class="card" @click="showDrawer(index)">
+              <img src="../assets/imgs/3.gif" alt="" />
+              <span>
+                <i>{{ cardData.file_name }}</i>
+              </span>
+            </div>
+          </a-badge-ribbon>
+        </div>
+        <!-- 4 安装包 -->
+        <div class="box" v-else-if="cardData.file_type == 4">
+          <a-badge-ribbon :text="cardData.file_suffix" color="#722ed1" style="font-weight: 600">
+            <div class="card" @click="showDrawer(index)">
+              <img src="../assets/imgs/4.gif" alt="" />
+              <span>
+                <i>{{ cardData.file_name }}</i>
+              </span>
+            </div>
+          </a-badge-ribbon>
+        </div>
+        <!-- 5-代码文本 -->
+        <div class="box" v-else-if="cardData.file_type == 5">
+          <a-badge-ribbon :text="cardData.file_suffix" color="#fa541c" style="font-weight: 600">
+            <div class="card" @click="showDrawer(index)">
+              <img src="../assets/imgs/5.gif" alt="" />
+              <span>
+                <i>{{ cardData.file_name }}</i>
+              </span>
+            </div>
+          </a-badge-ribbon>
+        </div>
+        <!-- 6 记事本 -->
+        <div class="box" v-else-if="cardData.file_type == 6">
+          <a-badge-ribbon :text="cardData.file_suffix" color="#fc213f" style="font-weight: 600">
+            <div class="card" @click="showDrawer(index)">
+              <img src="../assets/imgs/6.gif" alt="" />
+              <span>
+                <i>{{ cardData.file_name }}</i>
+              </span>
+            </div>
+          </a-badge-ribbon>
+        </div>
+        <!-- 7-office文件 -->
+        <div class="box" v-else-if="cardData.file_type == 7">
+          <a-badge-ribbon :text="cardData.file_suffix" color="#fe9843" style="font-weight: 600">
+            <div class="card" @click="showDrawer(index)">
+              <img src="../assets/imgs/7.gif" alt="" />
+              <span>
+                <i>{{ cardData.file_name }}</i>
+              </span>
+            </div>
+          </a-badge-ribbon>
+        </div>
+        <!--  8-其他文件 -->
+        <div class="box" v-else-if="cardData.file_type == 8">
+          <a-badge-ribbon :text="cardData.file_suffix" color="#b9c9d5" style="font-weight: 600">
+            <div class="card" @click="showDrawer(index)">
+              <img src="../assets/imgs/8.gif" alt="" style="transform: translateY(15%)" />
+              <span>
+                <i>{{ cardData.file_name }}</i>
+              </span>
+            </div>
+          </a-badge-ribbon>
+        </div>
+      </template>
+    </div>
+
+    <!-- 分页标签-->
+    <div class="paging">
+      <a-pagination @change="changePage" :showQuickJumper="true" v-model:current="current" :total="pageCount" :locale="locale" :defaultPageSize="24" :pageSizeOptions="['24', '48', '72', '100']" />
+    </div>
+  </div>
+</template>
+<script setup>
+import DrawerDataDisplay from "../components/DrawerDataDisplay.vue";
+import { PlayCircleOutlined } from "@ant-design/icons-vue";
+import { ref, computed, reactive, onMounted } from "vue";
+import { useStore } from "../stores/index";
+import { storeToRefs } from "pinia";
+const store = useStore();
+let { cardDataArray, pageCount, pageTotal, pageIndex, DrawerDataFlag, DrawerDataItem, DrawerDataIndex } = storeToRefs(store); //在Pinia结构的值 查询到的数据数组
+
+import { pcsearchfileApi } from "../api/index";
+
+import locale from "ant-design-vue/es/date-picker/locale/zh_CN";
+import "dayjs/locale/zh-cn";
+import dayjs from "dayjs";
+dayjs.locale("zh-cn");
+
+const current = ref(1); //当前页码
+
+// -------------------------------------------------------------
+
+// 显示抽屉
+function showDrawer(index) {
+  DrawerDataFlag.value = true;
+  DrawerDataItem.value = cardDataArray.value[index];
+  DrawerDataIndex.value = index;
+}
+
+// 页码改变函数
+function changePage(page, pageSize) {
+  pageIndex.value = page; //pinia赋值页码
+  pageTotal.value = pageSize; //pinia赋值页码
+}
+
+onMounted(() => {
+  // 当组件挂载后，给 document 添加事件监听器
+  // console.log(cardDataArray.value);
+});
+</script>
+<style scoped lang="scss">
+.DataShow {
+  @keyframes scrollText {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  .container {
+    padding: 10px 20px 70px;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    .box {
+      width: 120px;
+      height: 170px;
+      margin-right: 30px;
+      margin-bottom: 30px;
+      box-sizing: border-box;
+      &:hover {
+        .card {
+          border: 2px solid #ff4d4f;
+          box-shadow: 8px 8px 15px rgba(0, 0, 0, 0.1), -3px -3px 15px rgba(255, 255, 255, 0.3);
+          img {
+            object-position: bottom center;
+          }
+          span {
+            i {
+              animation: scrollText 10s linear infinite;
+            }
+          }
+        }
+      }
+      .card {
+        display: flex;
+        width: 120px;
+        height: 170px;
+        position: relative;
+        transition: all 0.3s;
+        border: 2px solid #c0b7b760;
+        background-color: #fff;
+        border-radius: 5px;
+        .iconfont {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 100%;
+          height: 100%;
+          transform: translate(-50%, -50%);
+          color: #fff;
+          font-size: 36px;
+          background-color: #00000030;
+          text-align: center;
+          line-height: 170px;
+        }
+        img {
+          width: 100%;
+          object-fit: cover;
+          object-position: top center;
+          transition: all 0.3s;
+          box-sizing: border-box;
+        }
+        video {
+          width: 100%;
+          object-fit: cover;
+          object-position: top center;
+          transition: all 0.3s;
+        }
+
+        span {
+          position: absolute;
+          width: 100%;
+          height: 25px;
+          background-color: rgba(0, 0, 0, 0.5);
+          bottom: 0px;
+          text-align: center;
+          line-height: 25px;
+          font-size: 10px;
+          color: #fff;
+          transition: all 0.3s;
+          overflow: hidden;
+          i {
+            display: inline-block;
+            white-space: nowrap;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+          }
+        }
+      }
+    }
+  }
+  /* 分页 */
+  .paging {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    width: 100%;
+    height: 70px;
+    bottom: 0px;
+
+    background-color: #fff;
+    box-shadow: 0 0 3px #ccc;
+    :deep(.ant-pagination) {
+      font-weight: 600;
+      margin-right: 220px;
+    }
+  }
+}
+</style>
