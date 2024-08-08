@@ -440,7 +440,7 @@ onUnmounted(() => {
     justify-content: center;
     color: #999999;
     box-sizing: border-box;
-    /* background-color: #fff; */
+    background-color: #fff;
     i {
       font-size: 40px;
     }

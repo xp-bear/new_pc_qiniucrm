@@ -9,7 +9,7 @@
             <div class="card" @click="showDrawer(index)">
               <img :src="cardData.file_link" alt="" />
               <span>
-                <i>{{ cardData.file_name }}</i>
+                <i>{{ detailName(cardData.file_name) }}</i>
               </span>
             </div>
           </a-badge-ribbon>
@@ -21,7 +21,7 @@
               <i class="iconfont icon-bofang"></i>
               <video :src="cardData.file_link"></video>
               <span>
-                <i>{{ cardData.file_name }}</i>
+                <i>{{ detailName(cardData.file_name) }}</i>
               </span>
             </div>
           </a-badge-ribbon>
@@ -30,9 +30,9 @@
         <div class="box" v-else-if="cardData.file_type == 2">
           <a-badge-ribbon :text="cardData.file_suffix" color="cyan" style="font-weight: 600">
             <div class="card" @click="showDrawer(index)">
-              <img src="../assets/imgs/2.gif" alt="" />
+              <img src="../assets/types/2.png" alt="" />
               <span>
-                <i>{{ cardData.file_name }}</i>
+                <i>{{ detailName(cardData.file_name) }}</i>
               </span>
             </div>
           </a-badge-ribbon>
@@ -41,9 +41,9 @@
         <div class="box" v-else-if="cardData.file_type == 3">
           <a-badge-ribbon :text="cardData.file_suffix" color="#52c41a" style="font-weight: 600">
             <div class="card" @click="showDrawer(index)">
-              <img src="../assets/imgs/3.gif" alt="" />
+              <img src="../assets/types/3.png" alt="" />
               <span>
-                <i>{{ cardData.file_name }}</i>
+                <i>{{ detailName(cardData.file_name) }}</i>
               </span>
             </div>
           </a-badge-ribbon>
@@ -52,9 +52,9 @@
         <div class="box" v-else-if="cardData.file_type == 4">
           <a-badge-ribbon :text="cardData.file_suffix" color="#722ed1" style="font-weight: 600">
             <div class="card" @click="showDrawer(index)">
-              <img src="../assets/imgs/4.gif" alt="" />
+              <img src="../assets/types/4.png" alt="" />
               <span>
-                <i>{{ cardData.file_name }}</i>
+                <i>{{ detailName(cardData.file_name) }}</i>
               </span>
             </div>
           </a-badge-ribbon>
@@ -63,9 +63,9 @@
         <div class="box" v-else-if="cardData.file_type == 5">
           <a-badge-ribbon :text="cardData.file_suffix" color="#fa541c" style="font-weight: 600">
             <div class="card" @click="showDrawer(index)">
-              <img src="../assets/imgs/5.gif" alt="" />
+              <img src="../assets/types/5.png" alt="" />
               <span>
-                <i>{{ cardData.file_name }}</i>
+                <i>{{ detailName(cardData.file_name) }}</i>
               </span>
             </div>
           </a-badge-ribbon>
@@ -74,9 +74,10 @@
         <div class="box" v-else-if="cardData.file_type == 6">
           <a-badge-ribbon :text="cardData.file_suffix" color="#fc213f" style="font-weight: 600">
             <div class="card" @click="showDrawer(index)">
-              <img src="../assets/imgs/6.gif" alt="" />
+              <img v-show="cardData.file_suffix == '.txt'" src="../assets/types/6.png" alt="" />
+              <img v-show="cardData.file_suffix == '.md'" src="../assets/types/6-1.png" alt="" />
               <span>
-                <i>{{ cardData.file_name }}</i>
+                <i>{{ detailName(cardData.file_name) }}</i>
               </span>
             </div>
           </a-badge-ribbon>
@@ -85,9 +86,12 @@
         <div class="box" v-else-if="cardData.file_type == 7">
           <a-badge-ribbon :text="cardData.file_suffix" color="#fe9843" style="font-weight: 600">
             <div class="card" @click="showDrawer(index)">
-              <img src="../assets/imgs/7.gif" alt="" />
+              <img v-show="cardData.file_suffix == '.docx' || cardData.file_suffix == '.doc'" src="../assets/types/7-1.png" alt="" />
+              <img v-show="cardData.file_suffix == '.xls' || cardData.file_suffix == '.xlsx'" src="../assets/types/7-2.png" alt="" />
+              <img v-show="cardData.file_suffix == '.ppt' || cardData.file_suffix == '.pptx'" src="../assets/types/7-3.png" alt="" />
+              <img v-show="cardData.file_suffix == '.pdf'" src="../assets/types/7-4.png" alt="" />
               <span>
-                <i>{{ cardData.file_name }}</i>
+                <i>{{ detailName(cardData.file_name) }}</i>
               </span>
             </div>
           </a-badge-ribbon>
@@ -96,9 +100,10 @@
         <div class="box" v-else-if="cardData.file_type == 8">
           <a-badge-ribbon :text="cardData.file_suffix" color="#b9c9d5" style="font-weight: 600">
             <div class="card" @click="showDrawer(index)">
-              <img src="../assets/imgs/8.gif" alt="" style="transform: translateY(15%)" />
+              <img v-show="cardData.file_suffix == '.ttf'" src="../assets/types/8-1.png" alt="" />
+              <img v-show="cardData.file_suffix != '.ttf'" src="../assets/types/8.png" alt="" />
               <span>
-                <i>{{ cardData.file_name }}</i>
+                <i>{{ detailName(cardData.file_name) }}</i>
               </span>
             </div>
           </a-badge-ribbon>
@@ -131,6 +136,14 @@ dayjs.locale("zh-cn");
 const current = ref(1); //当前页码
 
 // -------------------------------------------------------------
+
+// 取消展示名字后面的时间戳后缀
+function detailName(name) {
+  // 定义一个时间戳的正则表达式
+  const timestampRegex = /-\d{13}$/;
+  // 使用 replace 方法去掉匹配到的时间戳
+  return name.replace(timestampRegex, "...");
+}
 
 // 显示抽屉
 function showDrawer(index) {

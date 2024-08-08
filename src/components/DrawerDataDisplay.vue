@@ -161,7 +161,7 @@
                 <div class="ani-item">
                   <span>收藏量：</span><i class="iconfont icon-mn_shoucang_fill"></i><span>{{ DrawerDataItem.file_likes }}</span>
                 </div>
-                <div class="ani-item"><span>点赞量：</span><i class="iconfont icon-arrow-"></i><span>1245</span></div>
+                <div class="ani-item"><span>分享量：</span><i class="iconfont icon-arrow-"></i><span>56</span></div>
               </div>
             </a-card>
           </a-badge-ribbon>
@@ -180,8 +180,9 @@
                 <a-popconfirm title="是否要删除该资源?" ok-text="确认" cancel-text="取消" @confirm="confirm" @cancel="cancel">
                   <a-button type="primary" danger style="width: 48%">删除文件</a-button>
                 </a-popconfirm>
-                <a-button type="primary" style="width: 48%">下载资源</a-button>
+                <a-button type="primary" style="width: 48%" @click="downloadFile">下载资源</a-button>
               </div>
+              <a-progress :percent="downloadPercent" status="active" size="small" />
             </a-card>
           </a-badge-ribbon>
         </div>
@@ -245,9 +246,82 @@ const videoShowDisplay = computed(() => ({
 
 const filePublic = ref(false); //是否共享该资源
 
+const downloadPercent = ref(0); // 下载文件的进度条
+
 let { DrawerDataFlag, DrawerDataItem, DrawerDataIndex, cardDataArray } = storeToRefs(store); //在Pinia结构的值 查询到的数据数组
 
 // ---------------------------------------------------
+
+// 下载资源
+function downloadFile() {
+  // 根据下载文件进度条,做判断
+  if (downloadPercent.value > 0 && downloadPercent.value < 100) {
+    return message.info("该文件已经在下载中", 2);
+  } else if (downloadPercent.value == 100) {
+    return message.success("文件已经下载完成", 2);
+  }
+  //下载文件进度条
+  downloadFileProcess(DrawerDataItem.value.file_link, DrawerDataItem.value.file_name + DrawerDataItem.value.file_suffix);
+  console.log(DrawerDataItem.value.file_name);
+}
+
+// 下载文件三部曲
+const downloadFileProcess = async function (fileUrl, fileName) {
+  let blob = await getBlob(fileUrl);
+  saveFile(blob, fileName);
+};
+function getBlob(fileUrl) {
+  let that = this;
+  return new Promise((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", fileUrl, true);
+    //监听进度事件
+    xhr.addEventListener(
+      "progress",
+      function (evt) {
+        if (evt.lengthComputable) {
+          let percentComplete = evt.loaded / evt.total;
+          // percentage是当前下载进度，可根据自己的需求自行处理
+          let percentage = percentComplete * 100;
+          // console.log(percentage);
+          downloadPercent.value = parseFloat(percentage.toFixed(2));
+        }
+      },
+      false
+    );
+    xhr.responseType = "blob";
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        resolve(xhr.response);
+      }
+    };
+    xhr.send();
+  });
+}
+function saveFile(blob, fileName) {
+  // ie的下载
+  if (window.navigator.msSaveOrOpenBlob) {
+    navigator.msSaveBlob(blob, filename);
+  } else {
+    // 非ie的下载
+    const link = document.createElement("a");
+    link.classList.add("download_link");
+    const body = document.querySelector("body");
+
+    link.href = window.URL.createObjectURL(blob);
+    link.download = fileName;
+
+    // fix Firefox
+    link.style.display = "none";
+    body.appendChild(link);
+
+    link.click();
+    body.removeChild(link);
+
+    window.URL.revokeObjectURL(link.href);
+  }
+}
+
 // 确认删除资源
 const confirm = (e) => {
   let data = {
@@ -295,7 +369,7 @@ function changeItem(index) {
 // 代码高亮显示函数
 const fetchAndHighlight = (value) => {
   try {
-    axiosm
+    axios
       .get(value, {
         responseType: "text",
         headers: {
@@ -420,6 +494,8 @@ onMounted(() => {
 
   // 当组件挂载后，给 document 添加事件监听器
   document.addEventListener("keydown", handlekeydown);
+
+  //
 });
 //组件销毁的时候
 onBeforeUnmount(() => {
@@ -445,6 +521,13 @@ function handlekeydown(event) {
 }
 // 获取数据格式处理函数
 function formatData() {
+  // 判断文件是否共享
+  if (DrawerDataItem.value.file_public == 1) {
+    filePublic.value = true;
+  } else {
+    filePublic.value = false;
+  }
+
   // 确保图片已经加载完成  // 获取图片的宽高/或者视频宽高
   if (imageRef.value) {
     if (imageRef.value.complete) {
@@ -475,6 +558,12 @@ function formatData() {
     fetchAndHighlight(DrawerDataItem.value.file_link);
     imageSize.width = 960;
     imageSize.height = 1080;
+  }
+
+  // office 文件
+  if (DrawerDataItem.value.file_type == 7) {
+    imageSize.width = 970;
+    imageSize.height = 810;
   }
 }
 // ************************************************************************************
@@ -690,9 +779,10 @@ function formatData() {
   .dar-right {
     width: 700px;
     height: 100vh;
-    display: flex;
-    align-items: center;
+    /* display: flex; */
+    /* align-items: center; */
     /* box-shadow: 0 3px 10px #00000050 ; */
+    overflow-y: auto;
     .content {
       width: 100%;
       padding: 20px;
