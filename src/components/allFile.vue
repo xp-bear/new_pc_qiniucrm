@@ -7,8 +7,9 @@
       </div>
     </transition>
 
+    
     <a-dropdown :trigger="['contextmenu']">
-      <div :style="{ background: 'transparent', height: '100%' }">
+      <div :style="{ background: 'transparent', height: '100vh' }">
         <!-- 搜索组件 -->
         <Search></Search>
         <!-- 数据展示组件 -->
@@ -20,7 +21,7 @@
             <VerticalAlignTopOutlined style="margin-right: 5px" />
             <span>选择文件</span>
           </a-menu-item>
-          <a-menu-item key="2">正在开发...</a-menu-item>
+          <a-menu-item key="2">熊仔开发中...</a-menu-item>
         </a-menu>
       </template>
     </a-dropdown>

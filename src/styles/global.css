@@ -181,6 +181,19 @@ table {
   background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.2) 75%, transparent 75%, transparent);
 }
 
+/* 横向滚动条样式 */
+.inner-slider-h::-webkit-scrollbar {
+  height: 5px;
+  /* 对于横向滚动条，设置高度 */
+}
+
+.inner-slider-h::-webkit-scrollbar-thumb {
+  /*滚动条里面小方块*/
+  border-radius: 5px;
+  background-color: #add11d;
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.2) 75%, transparent 75%, transparent);
+}
+
 /* 定义一个类来应用渐变效果 */
 .grad-text {
   /* 设置渐变背景 */

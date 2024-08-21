@@ -14,7 +14,7 @@
         <img ref="imageRef" @load="onImageLoad" :src="DrawerDataItem.file_link" alt="该格式图片暂不支持显示" />
       </div>
       <!-- 1 视频 -->
-      <div style="width: 980px; justify-content: center" v-else-if="DrawerDataItem.file_type == 1" class="box inner-slider" :style="!videoShowDisplayFlag ? '' : imgShowDisplay">
+      <div style="justify-content: center" v-else-if="DrawerDataItem.file_type == 1" class="box inner-slider" :style="!videoShowDisplayFlag ? '' : imgShowDisplay">
         <video :style="videoShowDisplayFlag ? 'width:100%' : 'display: block; height: 100%; margin: 0 auto;'" ref="videoRef" :src="DrawerDataItem.file_link" autoplay loop controls></video>
       </div>
       <!-- 2 音乐 -->
@@ -89,7 +89,7 @@
       <!-- 7-office文件 -->
       <div v-else-if="DrawerDataItem.file_type == 7" class="box inner-slider">
         <div v-if="DrawerDataItem.file_suffix != '.pdf'" class="office-box">
-          <iframe style="width: 100%; height: 100%" :src="'https://view.officeapps.live.com/op/view.aspx?src=' + DrawerDataItem.file_link" frameborder="0"></iframe>
+          <iframe style="width: 100%; height: 100%" :src="'http://www.pfile.com.cn/api/profile/onlinePreview?url=' + DrawerDataItem.file_link" frameborder="0"></iframe>
         </div>
         <div v-else-if="DrawerDataItem.file_suffix == '.pdf'" class="office-box">
           <iframe :src="DrawerDataItem.file_link" style="width: 100%; height: 100%"></iframe>
@@ -169,7 +169,7 @@
         <div class="item">
           <a-badge-ribbon text="文件共享" color="#375064">
             <a-card size="small" title="是否共享该资源">
-              <a-switch v-model:checked="filePublic" />
+              <a-switch v-model:checked="filePublic" @change="changePublicFlag" />
             </a-card>
           </a-badge-ribbon>
         </div>
@@ -195,7 +195,7 @@ import axios from "axios";
 import Prism from "prismjs";
 import "prismjs/themes/prism.css";
 import { formatBytes } from "../utils/tool";
-import { deleteQiNiuFileApi, deletefileApi } from "../api/index";
+import { deleteQiNiuFileApi, deletefileApi, isPublicChangeApi } from "../api/index";
 
 import { useStore } from "../stores/index";
 import { storeToRefs } from "pinia";
@@ -251,6 +251,19 @@ const downloadPercent = ref(0); // 下载文件的进度条
 let { DrawerDataFlag, DrawerDataItem, DrawerDataIndex, cardDataArray } = storeToRefs(store); //在Pinia结构的值 查询到的数据数组
 
 // ---------------------------------------------------
+
+// 改变文件共享状态。
+function changePublicFlag(checked) {
+  // 修改文件隐私状态函数
+  isPublicChangeApi({
+    is_public: checked ? 1 : 0,
+    file_id: DrawerDataItem.value.file_id,
+  }).then((res) => {
+    message.info("文件隐私状态改变成功", 2);
+    // 改变当前卡片数组对应的索引文件状态。
+    cardDataArray.value[DrawerDataIndex.value].file_public = checked ? 1 : 0;
+  });
+}
 
 // 下载资源
 function downloadFile() {
@@ -398,8 +411,25 @@ function getRandomInt(min, max) {
 // 点击复制文本
 const copyText = async (value) => {
   try {
-    await navigator.clipboard.writeText(value);
-    message.success("复制成功", 1);
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(value);
+      message.success("复制成功", 1);
+    } else {
+      // 创建text area
+      const textArea = document.createElement("textarea");
+      textArea.value = value;
+      // 使text area不在viewport，同时设置不可见
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      return new Promise((resolve, reject) => {
+        // 执行复制命令并移除文本框
+        document.execCommand("copy") ? resolve() : reject(new Error("出错了"));
+        textArea.remove();
+      }).then(() => {
+        message.success("复制成功", 1);
+      });
+    }
   } catch (err) {
     message.error("复制失败", 1);
     console.error("Failed to copy text: ", err);
@@ -628,16 +658,33 @@ function formatData() {
       height: 100vh;
       padding: 0 20px;
       overflow-y: auto;
+      /* background-color: #f5f2f0; */
       box-sizing: border-box;
       .office-box {
+        display: flex;
+        justify-content: center;
+        max-width: 958px;
+        height: 100vh;
+        margin: 0 auto;
+      }
+      /* .office-box {
         width: 970px;
         height: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
-      }
+      } */
       .daima-box {
-        width: 958px;
+        display: flex;
+        justify-content: center;
+        max-width: 958px;
+        height: 100vh;
+        margin: 0 auto;
+        overflow-x: auto;
+      }
+      /* .daima-box {
+         width: 958px; 
+        width: 100%;
         height: 100%;
         display: flex;
         justify-content: center;
@@ -652,7 +699,7 @@ function formatData() {
           padding-top: 20px 0;
           box-sizing: border-box;
         }
-      }
+      } */
       .yasuo-box {
         width: 100%;
         height: 100%;
@@ -779,8 +826,9 @@ function formatData() {
   .dar-right {
     width: 700px;
     height: 100vh;
-    /* display: flex; */
-    /* align-items: center; */
+    z-index: 2;
+    display: flex;
+    align-items: center;
     /* box-shadow: 0 3px 10px #00000050 ; */
     overflow-y: auto;
     .content {

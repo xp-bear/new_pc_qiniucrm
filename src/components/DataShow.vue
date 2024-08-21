@@ -126,7 +126,7 @@ import { storeToRefs } from "pinia";
 const store = useStore();
 let { cardDataArray, pageCount, pageTotal, pageIndex, DrawerDataFlag, DrawerDataItem, DrawerDataIndex } = storeToRefs(store); //在Pinia结构的值 查询到的数据数组
 
-import { pcsearchfileApi } from "../api/index";
+import { pcsearchfileApi, minsertviewApi } from "../api/index";
 
 import locale from "ant-design-vue/es/date-picker/locale/zh_CN";
 import "dayjs/locale/zh-cn";
@@ -150,6 +150,14 @@ function showDrawer(index) {
   DrawerDataFlag.value = true;
   DrawerDataItem.value = cardDataArray.value[index];
   DrawerDataIndex.value = index;
+
+  // 增加浏览量接口
+  minsertviewApi({ file_id: DrawerDataItem.value.file_id }).then((res) => {
+    // console.log(res);
+    DrawerDataItem.value.file_views += 1;
+    // 卡片进行赋值
+    cardDataArray.value[index] = DrawerDataItem.value;
+  });
 }
 
 // 页码改变函数

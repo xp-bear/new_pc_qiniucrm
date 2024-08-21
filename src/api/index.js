@@ -62,3 +62,19 @@ export function deleteQiNiuFileApi(params) {
     params: params,
   });
 }
+
+// 9.改变文件公开隐私状态
+export function isPublicChangeApi(params) {
+  return http("mispublic", {
+    method: "post",
+    params: params,
+  });
+}
+
+// 10.增加浏览量的接口
+export function minsertviewApi(params) {
+  return http("minsertview", {
+    method: "get",
+    params: params,
+  });
+}

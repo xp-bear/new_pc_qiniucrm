@@ -42,7 +42,7 @@
         <a-divider />
         <div class="setting-item">
           <span><i style="color: red">*</i>文件名称</span>
-          <a-input v-model:value="selectFileName" placeholder="文件名称..." class="file_name" />
+          <a-input ref="inputNameFile" v-model:value="selectFileName" placeholder="文件名称..." class="file_name" />
           <a-select v-model:value="selectTimeNow" style="width: 120px" @change="handleChange">
             <a-select-option value="true">添加时间戳</a-select-option>
             <a-select-option value="false">取消时间戳</a-select-option>
@@ -102,7 +102,11 @@ const drag = ref(null); //是否可以拖动文件
 const areaFlag = ref(true); //失去焦点的函数 文本域 是否取用回车
 
 const userObj = JSON.parse(localStorage.getItem("userObj")); //本地保存的用户信息
+
+const inputNameFile = ref(null); //文件名输入框 聚焦
+
 // **********************************************************
+
 // 失去焦点的函数 文本域
 function areaBlur() {
   areaFlag.value = true;
@@ -177,6 +181,9 @@ function pasting(event) {
           isSFXtoTYPE(selectFileSuffix.value);
 
           previewUrl.value = URL.createObjectURL(file) || ""; // 创建一个临时 URL
+
+          // 文件名输入框聚焦
+          inputNameFile.value.focus();
         } else {
           // 清空文件对象
           selectFileName.value = "";
@@ -209,6 +216,9 @@ function handleDrop(e) {
     isSFXtoTYPE(selectFileSuffix.value);
 
     previewUrl.value = URL.createObjectURL(e.dataTransfer.files[0]) || ""; // 创建一个临时 URL
+
+    // 文件名输入框聚焦
+    inputNameFile.value.focus();
   } else {
     // 清空文件对象
     selectFileName.value = "";
@@ -373,6 +383,9 @@ function onFileSelected(event) {
     isSFXtoTYPE(selectFileSuffix.value);
 
     previewUrl.value = URL.createObjectURL(file) || ""; // 创建一个临时 URL
+
+    // 文件名输入框聚焦
+    inputNameFile.value.focus();
   } else {
     // 清空文件对象
     selectFileName.value = "";
