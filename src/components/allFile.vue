@@ -21,7 +21,7 @@
             <VerticalAlignTopOutlined style="margin-right: 5px" />
             <span>选择文件</span>
           </a-menu-item>
-          <a-menu-item key="2">熊仔开发中...</a-menu-item>
+          <a-menu-item key="2">正在快马加鞭开发中...</a-menu-item>
         </a-menu>
       </template>
     </a-dropdown>

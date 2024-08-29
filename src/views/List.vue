@@ -12,10 +12,10 @@
         <UploadOutlined :style="{ fontSize: '24px' }" />
         <span>上传资源</span>
       </div>
-      <div @click="changeItem(2)" class="item" :style="activeCount == 2 ? avtiveStyle : ''">
+      <!-- <div @click="changeItem(2)" class="item" :style="activeCount == 2 ? avtiveStyle : ''">
         <HeartOutlined :style="{ fontSize: '24px' }" />
         <span>我的收藏</span>
-      </div>
+      </div> -->
       <div @click="changeItem(3)" class="item" :style="activeCount == 3 ? avtiveStyle : ''">
         <TeamOutlined :style="{ fontSize: '24px' }" />
         <span>共享星球</span>
@@ -25,7 +25,7 @@
         <template #title>
           <span>前往个人中心页面</span>
         </template>
-        <div class="user">
+        <div class="user" @click="changeItem(4)" :style="activeCount == 4 ? avtiveStyle : ''">
           <img :src="userObj.avatar" alt="" />
           <span>{{ userObj.username }}</span>
         </div>
@@ -62,6 +62,7 @@ const avtiveStyle = computed(() => ({
 }));
 
 // --------------------------------------------
+
 // 跳转子路由函数
 function changeRoute() {
   if (activeCount.value == 0) {
@@ -72,6 +73,8 @@ function changeRoute() {
     router.push("/list/likefile");
   } else if (activeCount.value == 3) {
     router.push("/list/sharefile");
+  } else if (activeCount.value == 4) {
+    router.push("/list/userfile");
   }
 }
 
@@ -143,10 +146,10 @@ function changeItem(value) {
     }
     .user {
       position: absolute;
-      bottom: 24px;
+      bottom: 0px;
       width: 100%;
-      height: 40px;
-      padding: 0 10px;
+      height: 70px;
+      padding: 15px 10px;
       box-sizing: border-box;
       display: flex;
       align-items: center;

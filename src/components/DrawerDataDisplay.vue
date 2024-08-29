@@ -158,8 +158,8 @@
                 <div class="ani-item">
                   <span>浏览量：</span><i class="iconfont icon-in_zhengyan_fill"></i><span>{{ DrawerDataItem.file_views }}</span>
                 </div>
-                <div class="ani-item">
-                  <span>收藏量：</span><i class="iconfont icon-mn_shoucang_fill"></i><span>{{ DrawerDataItem.file_likes }}</span>
+                <div class="ani-item" @click="tolike()">
+                  <span>收藏量：</span><i :style="likeStyle" class="iconfont icon-mn_shoucang_fill"></i><span :style="likeStyle">{{ DrawerDataItem.file_likes }}</span>
                 </div>
                 <div class="ani-item"><span>分享量：</span><i class="iconfont icon-arrow-"></i><span>56</span></div>
               </div>
@@ -169,7 +169,7 @@
         <div class="item">
           <a-badge-ribbon text="文件共享" color="#375064">
             <a-card size="small" title="是否共享该资源">
-              <a-switch v-model:checked="filePublic" @change="changePublicFlag" />
+              <a-switch v-model:checked="filePublic" @change="changePublicFlag" :disabled="userObj.id != DrawerDataItem.file_user_id ? true : false" />
             </a-card>
           </a-badge-ribbon>
         </div>
@@ -177,10 +177,10 @@
           <a-badge-ribbon text="操作功能选项" color="#f11566">
             <a-card size="small" title="下载与删除信息">
               <div class="options">
-                <a-popconfirm title="是否要删除该资源?" ok-text="确认" cancel-text="取消" @confirm="confirm" @cancel="cancel">
+                <a-button type="primary" style="width: 48%" @click="downloadFile">下载资源</a-button>
+                <a-popconfirm v-if="userObj.id == DrawerDataItem.file_user_id ? true : false" title="是否要删除该资源?" ok-text="确认" cancel-text="取消" @confirm="confirm" @cancel="cancel">
                   <a-button type="primary" danger style="width: 48%">删除文件</a-button>
                 </a-popconfirm>
-                <a-button type="primary" style="width: 48%" @click="downloadFile">下载资源</a-button>
               </div>
               <a-progress :percent="downloadPercent" status="active" size="small" />
             </a-card>
@@ -191,11 +191,12 @@
   </div>
 </template>
 <script setup>
+import * as OSS from "../utils/tool"; // 引入oss.js
 import axios from "axios";
 import Prism from "prismjs";
 import "prismjs/themes/prism.css";
 import { formatBytes } from "../utils/tool";
-import { deleteQiNiuFileApi, deletefileApi, isPublicChangeApi } from "../api/index";
+import { deleteQiNiuFileApi, deletefileApi, isPublicChangeApi, minsertviewApi, minsertlikeApi, minsertlikefileApi, msearchlikefileApi } from "../api/index";
 
 import { useStore } from "../stores/index";
 import { storeToRefs } from "pinia";
@@ -250,7 +251,38 @@ const downloadPercent = ref(0); // 下载文件的进度条
 
 let { DrawerDataFlag, DrawerDataItem, DrawerDataIndex, cardDataArray } = storeToRefs(store); //在Pinia结构的值 查询到的数据数组
 
+const userObj = JSON.parse(localStorage.getItem("userObj")); //本地保存的用户信息
+
+const likeColor = ref(false); //点击红心的状态
+// 收藏红心样式
+const likeStyle = computed(() => ({
+  color: likeColor.value ? "red" : "#1f1f1f",
+  "margin-right": "4px",
+}));
+
 // ---------------------------------------------------
+
+// 收藏文件函数
+// 点赞+1   // 当前打开的共享文件
+function tolike() {
+  if (userObj.id == DrawerDataItem.value.file_user_id) {
+    return message.warning("不可对自己文件收藏", 1);
+  }
+  // 判断用户有没有对该文件收藏
+  msearchlikefileApi({ favorite_user_id: userObj.id, favorite_file_id: DrawerDataItem.value.file_id }).then((rs) => {
+    if (rs.msg.length == 0) {
+      // 没有收藏过  先修改对应的file表的likes记录
+      minsertlikeApi({ file_id: DrawerDataItem.value.file_id }).then((res) => {
+        DrawerDataItem.value.file_likes += 1;
+        likeColor.value = true; // 切换收藏红心状态
+        message.success("收藏成功", 1);
+      });
+
+      // 在favorite表格添加一条收藏记录
+      minsertlikefileApi({ favorite_user_id: userObj.id, favorite_file_id: DrawerDataItem.value.file_id, favorite_createtime: dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss") });
+    }
+  });
+}
 
 // 改变文件共享状态。
 function changePublicFlag(checked) {
@@ -337,22 +369,38 @@ function saveFile(blob, fileName) {
 
 // 确认删除资源
 const confirm = (e) => {
-  let data = {
-    file_name: DrawerDataItem.value.file_name + DrawerDataItem.value.file_suffix,
-    space: DrawerDataItem.value.file_region,
-  };
+  // 阿里云删除文件
+  OSS.client()
+    .delete(DrawerDataItem.value.file_region + "/" + DrawerDataItem.value.file_name + DrawerDataItem.value.file_suffix)
+    .then((res) => {
+      if (res.res.status == 204) {
+        deletefileApi({ file_id: DrawerDataItem.value.file_id }).then((result) => {
+          cardDataArray.value = cardDataArray.value.filter((item) => item.file_id !== DrawerDataItem.value.file_id);
+          DrawerDataFlag.value = false;
+          message.success("删除成功!", 2);
+        });
+      } else {
+        message.error("删除失败!", 2);
+      }
+    });
 
-  deleteQiNiuFileApi(data).then((res) => {
-    if (res.code == 200) {
-      deletefileApi({ file_id: DrawerDataItem.value.file_id }).then((result) => {
-        cardDataArray.value = cardDataArray.value.filter((item) => item.file_id !== DrawerDataItem.value.file_id);
-        DrawerDataFlag.value = false;
-        message.success("删除成功!", 2);
-      });
-    } else {
-      message.error("删除失败!", 2);
-    }
-  });
+  // 七牛云文件删除
+  // let data = {
+  //   file_name: DrawerDataItem.value.file_name + DrawerDataItem.value.file_suffix,
+  //   space: DrawerDataItem.value.file_region,
+  // };
+
+  // deleteQiNiuFileApi(data).then((res) => {
+  //   if (res.code == 200) {
+  //     deletefileApi({ file_id: DrawerDataItem.value.file_id }).then((result) => {
+  //       cardDataArray.value = cardDataArray.value.filter((item) => item.file_id !== DrawerDataItem.value.file_id);
+  //       DrawerDataFlag.value = false;
+  //       message.success("删除成功!", 2);
+  //     });
+  //   } else {
+  //     message.error("删除失败!", 2);
+  //   }
+  // });
 };
 // 取消删除资源
 const cancel = (e) => {
@@ -370,6 +418,16 @@ function changeItem(index) {
   // 切换元素
   DrawerDataIndex.value = DrawerDataIndex.value + index; //索引加1
   DrawerDataItem.value = cardDataArray.value[DrawerDataIndex.value];
+
+  // 判断用户有没有对该文件收藏,渲染红心状态
+  msearchlikefileApi({ favorite_user_id: userObj.id, favorite_file_id: DrawerDataItem.value.file_id }).then((rs) => {
+    // 有收藏过
+    if (rs.msg.length != 0) {
+      likeColor.value = true; //收藏过就是红心
+    } else {
+      likeColor.value = false;
+    }
+  });
 
   //确保加载的是视频 成功渲染尺寸
   setTimeout(() => {
@@ -525,12 +583,20 @@ onMounted(() => {
   // 当组件挂载后，给 document 添加事件监听器
   document.addEventListener("keydown", handlekeydown);
 
-  //
+  // 判断用户有没有对该文件收藏,渲染红心状态
+  msearchlikefileApi({ favorite_user_id: userObj.id, favorite_file_id: DrawerDataItem.value.file_id }).then((rs) => {
+    // 有收藏过
+    if (rs.msg.length != 0) {
+      likeColor.value = true; //收藏过就是红心
+    }
+  });
 });
 //组件销毁的时候
 onBeforeUnmount(() => {
   // 在组件卸载前，移除事件监听器
   document.removeEventListener("keydown", handlekeydown);
+
+  likeColor.value = false; //消除红心状态
 });
 
 // 监听上传组件的回车事件
@@ -846,18 +912,20 @@ function formatData() {
             height: 30px;
             font-size: 16px;
             cursor: pointer;
+            user-select: none;
             transition: all 0.3s;
             i {
               margin-right: 3px;
             }
             &:hover {
-              color: #00aeec;
+              /* color: #00aeec; */
             }
           }
         }
         .options {
           display: flex;
           justify-content: space-between;
+          flex-direction: row-reverse;
         }
       }
     }

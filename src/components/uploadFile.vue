@@ -53,12 +53,12 @@
           <span><i style="color: red">*</i>存储区域</span>
           <a-select v-model:value="storeArea" style="width: 150px">
             <a-select-option value="cookies">cookies</a-select-option>
-            <a-select-option value="mkdown-picture">mkdown-picture</a-select-option>
+            <a-select-option value="common">common</a-select-option>
           </a-select>
         </div>
         <div class="setting-item">
           <span><i style="color: #fff">*</i>备注信息</span>
-          <a-textarea @blur="areaBlur" v-model:value="fileRemark" placeholder="文件备注信息..." :auto-size="{ minRows: 2, maxRows: 5 }" />
+          <a-textarea @blur="areaBlur" @focus="areaFocus" v-model:value="fileRemark" placeholder="文件备注信息..." :auto-size="{ minRows: 2, maxRows: 5 }" />
         </div>
         <div class="btn">
           <a-button type="primary" class="gradient-animation" size="large" style="width: 50%; margin-right: 20px" @click="pcToSendFile">确认上传</a-button>
@@ -69,6 +69,7 @@
   </div>
 </template>
 <script setup>
+import * as OSS from "../utils/tool"; // 引入oss.js
 import * as qiniu from "qiniu-js";
 import { VerticalAlignTopOutlined } from "@ant-design/icons-vue";
 import { formatBytes } from "../utils/tool";
@@ -106,11 +107,16 @@ const userObj = JSON.parse(localStorage.getItem("userObj")); //本地保存的�
 const inputNameFile = ref(null); //文件名输入框 聚焦
 
 // **********************************************************
+// 聚焦事件 文本域
+function areaFocus() {
+  areaFlag.value = false;
+  // console.log("焦点:", areaFlag.value);
+}
 
 // 失去焦点的函数 文本域
 function areaBlur() {
   areaFlag.value = true;
-  console.log(areaFlag.value);
+  // console.log("失去焦点:", areaFlag.value);
 }
 
 // 页面渲染加载函数
@@ -143,9 +149,6 @@ onBeforeUnmount(() => {
 function handleKeyPress(event) {
   if (event.key === "Enter") {
     // 判断备注框有没有值
-    if (fileRemark.value) {
-      areaFlag.value = false;
-    }
     if (areaFlag.value == true) {
       pcToSendFile(); //执行确认上传文件函数
     }
@@ -273,6 +276,52 @@ function pcToSendFile() {
 
   let file_name = selectFileName.value + selectFileSuffix.value; //文件名 123.jpg
 
+  // 上传到阿里OSS
+  OSS.client()
+    .multipartUpload(storeArea.value + "/" + file_name, fileOrigin.value, {
+      progress: function (p) {
+        btnSendFlag.value = true;
+        processValue.value = (+p * 100).toFixed(0);
+      },
+    })
+    .then((res) => {
+      let base_url = "https://xp-cdn-oss.oss-cn-wuhan-lr.aliyuncs.com/" + res.name;
+      // console.log("上传资源链接:", base_url);
+      uploadLink.value = base_url + "?" + Date.now();
+
+      // 在数据库插入一条数据
+      let datas = {
+        file_createtime: dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss"), //new Date(),
+        file_type: uploadFileType.value, //上传文件类型
+        file_name: selectFileName.value, //文件名称  123
+        file_suffix: selectFileSuffix.value, // 文件后缀名 .jpg
+        file_link: uploadLink.value, //文件链接
+        file_size: "" + fileOrigin.value.size, //文件大小
+        file_region: storeArea.value, //文件存储区域 cookies
+        file_user_id: userObj.id, //文件用户id
+        file_user_name: userObj.username, //文件用户名,
+        file_likes: 1, //点赞用户
+        file_views: 1, //浏览量
+        file_remark: fileRemark.value,
+        file_address: fileAddress.value,
+        file_public: 0, //文件是否公开
+      };
+      pcInsertfileApi(datas).then((res) => {
+        setTimeout(() => {
+          // 重置上传状态
+          resetFile();
+        }, 3000);
+        // 反馈气泡提醒框
+        notification.success({
+          message: `熊仔网盘提示您`,
+          description: "您提交的资源已经上传成功，快去 全部文件 中查看一下吧！",
+          placement: "topRight",
+          duration: 3,
+        });
+      });
+    });
+
+  /**
   // 上传文件到七牛云
   getQiNiuTokenApi({ space: storeArea.value, name: file_name }).then((res) => {
     let qiniu_token = res.uploadToken; //上传的token
@@ -342,6 +391,7 @@ function pcToSendFile() {
 
     observable.subscribe(observer); // 上传over
   });
+*/
 }
 
 // 你也可以使用一个方法来进行判断,是不是一个对象

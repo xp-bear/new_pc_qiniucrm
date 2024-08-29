@@ -6,6 +6,7 @@ import allFile from "../components/allFile.vue";
 import uploadFile from "../components/uploadFile.vue";
 import likeFile from "../components/likeFile.vue";
 import shareFile from "../components/shareFile.vue";
+import userFile from "../components/userFile.vue";
 const routes = [
   {
     path: "/",
@@ -42,6 +43,11 @@ const routes = [
         path: "sharefile",
         name: "shareFile",
         component: shareFile,
+      },
+      {
+        path: "userfile",
+        name: "userFile",
+        component: userFile,
       },
     ], //子路由
   },

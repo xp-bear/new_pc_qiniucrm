@@ -71,10 +71,39 @@ export function isPublicChangeApi(params) {
   });
 }
 
-// 10.增加浏览量的接口
+//10. 查询共享文件的数据
+export function mSearchShareFileApi(params) {
+  return http("msearchsharefile", {
+    method: "post",
+    params: params,
+  });
+}
+
+// 11.增加浏览量的接口
 export function minsertviewApi(params) {
   return http("minsertview", {
     method: "get",
+    params: params,
+  });
+}
+// 12. 根据文件id增加收藏量
+export function minsertlikeApi(params) {
+  return http("minsertlike", {
+    method: "get",
+    params: params,
+  });
+}
+// 13.查询用户对文件的收藏情况
+export function msearchlikefileApi(params) {
+  return http("msearchlikefile", {
+    method: "post",
+    params: params,
+  });
+}
+// 14.新增一条收藏红心数据
+export function minsertlikefileApi(params) {
+  return http("minsertlikefile", {
+    method: "post",
     params: params,
   });
 }

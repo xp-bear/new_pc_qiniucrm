@@ -182,7 +182,7 @@ function toRegister() {
     user_email: registerData.email,
     user_sex: 0,
     user_sign: "该用户很懒，暂时没有签名。",
-    user_avatar: "http://cdn.xxoutman.cn/default_avatar.png",
+    user_avatar: "https://xp-cdn-oss.oss-cn-wuhan-lr.aliyuncs.com/common/default_avatar.png",
     user_createtime: dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss"),
   };
   // 这里就要发起注册的请求了

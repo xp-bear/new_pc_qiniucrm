@@ -8,7 +8,7 @@ export const useStore = defineStore({
     pageIndex: 1, //当前页码
     pageTotal: 24, //当前页码的总条数
     pageCount: 0, //所有符合条件的条数
-    activeCount: 0, //左侧侧边栏选择。
+    activeCount: 4, //左侧侧边栏选择。
 
     DrawerDataFlag: false, //抽屉组件的展开状态
     DrawerDataItem: "", //当前抽屉展示的数据
