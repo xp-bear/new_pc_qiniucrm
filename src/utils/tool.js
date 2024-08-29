@@ -15,8 +15,8 @@ import OSS from "ali-oss";
 export function client() {
   const client = new OSS({
     region: "oss-cn-wuhan-lr", // 示例：'oss-cn-hangzhou'，填写Bucket所在地域。
-    accessKeyId: "LTAI5t8ctB16T3iXwcwP1d6i", // 确保已设置环境变量OSS_ACCESS_KEY_ID。
-    accessKeySecret: "czGog3a8tryERof8peeTpB9rRbSpVB", // 确保已设置环境变量OSS_ACCESS_KEY_SECRET。
+    accessKeyId: "", //
+    accessKeySecret: "", //
     bucket: "xp-cdn-oss", // 示例：'my-bucket-name'，填写存储空间名称。
     secure: true,
   });
