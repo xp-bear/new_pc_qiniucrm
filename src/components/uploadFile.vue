@@ -318,6 +318,26 @@ function pcToSendFile() {
           placement: "topRight",
           duration: 3,
         });
+
+        // 获取复制文件资源地址 , 获取粘贴板的内容
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(base_url);
+        } else {
+          // 创建text area
+          const textArea = document.createElement("textarea");
+          textArea.value = base_url;
+          // 使text area不在viewport，同时设置不可见
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          return new Promise((resolve, reject) => {
+            // 执行复制命令并移除文本框
+            document.execCommand("copy") ? resolve() : reject(new Error("出错了"));
+            textArea.remove();
+          }).then(() => {
+            console.log("复制成功");
+          });
+        }
       });
     });
 

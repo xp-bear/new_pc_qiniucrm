@@ -108,7 +108,7 @@
         </div>
       </div>
     </div>
-    <div class="dar-right">
+    <div class="dar-right" @contextmenu.prevent="handleRightClick">
       <!-- 上方是内容信息展示 -->
       <div class="content">
         <div class="item">
@@ -261,6 +261,12 @@ const likeStyle = computed(() => ({
 }));
 
 // ---------------------------------------------------
+// 右键点击抽屉
+const handleRightClick = (event) => {
+  event.preventDefault(); // 阻止默认的上下文菜单弹出
+  //修改抽屉状态为隐藏
+  DrawerDataFlag.value = false;
+};
 
 // 收藏文件函数
 // 点赞+1   // 当前打开的共享文件

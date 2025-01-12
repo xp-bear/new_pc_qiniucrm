@@ -11,7 +11,7 @@ const CONFIG = {
     [".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".pdf"],
     ["other"],
   ],
-  BASE_URL: "http://127.0.0.1:7777",
+  BASE_URL: "http://1.94.161.15:7777",
 };
 
 export default CONFIG;

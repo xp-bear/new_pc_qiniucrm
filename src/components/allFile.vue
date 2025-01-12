@@ -2,12 +2,11 @@
   <div class="allFile">
     <!-- 抽屉 组件 -->
     <transition name="slide-right" mode="out-in">
-      <div class="drawer" @contextmenu.prevent="handleRightClick" v-if="DrawerDataFlag">
+      <div class="drawer" v-if="DrawerDataFlag">
         <DrawerDataDisplay></DrawerDataDisplay>
       </div>
     </transition>
 
-    
     <a-dropdown :trigger="['contextmenu']">
       <div :style="{ background: 'transparent', height: '100vh' }">
         <!-- 搜索组件 -->
@@ -44,12 +43,6 @@ const router = useRouter();
 let { pageTotal, pageIndex, activeCount, DrawerDataFlag, DrawerDataItem } = storeToRefs(store); //在Pinia结构的值 查询到的数据数组
 
 // ----------------------------------------------------------
-// 右键点击抽屉
-const handleRightClick = (event) => {
-  event.preventDefault(); // 阻止默认的上下文菜单弹出
-  //修改抽屉状态为隐藏
-  DrawerDataFlag.value = false;
-};
 
 // 右键上传文件
 function changeUpload(value) {
