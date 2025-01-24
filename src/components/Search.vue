@@ -146,7 +146,10 @@ onBeforeUnmount(() => {
 </script>
 <style scoped lang="scss">
 .Search {
+  width: 1360px;
+  margin: 0 auto;
   padding: 10px;
   padding-left: 20px;
+  box-sizing: border-box;
 }
 </style>

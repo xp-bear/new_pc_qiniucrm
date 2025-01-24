@@ -113,7 +113,7 @@
 
     <!-- 分页标签-->
     <div class="paging">
-      <a-pagination @change="changePage" :showQuickJumper="true" v-model:current="current" :total="pageCount" :locale="locale" :defaultPageSize="24" :pageSizeOptions="['24', '48', '72', '100']" />
+      <a-pagination @change="changePage" :showQuickJumper="true" v-model:current="current" :total="pageCount" :locale="locale" :defaultPageSize="27" :pageSizeOptions="['27', '54', '81', '108']" />
     </div>
   </div>
 </template>
@@ -182,7 +182,9 @@ onMounted(() => {
     }
   }
   .container {
+    width: 1360px;
     padding: 10px 20px 70px;
+    margin: 0 auto;
     box-sizing: border-box;
     display: flex;
     flex-wrap: wrap;
@@ -205,6 +207,9 @@ onMounted(() => {
             }
           }
         }
+      }
+      &:nth-child(9n) {
+        margin-right: 0px;
       }
       .card {
         display: flex;

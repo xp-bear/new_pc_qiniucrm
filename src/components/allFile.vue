@@ -53,7 +53,7 @@ function changeUpload(value) {
 // 重新切换到全部文件组件,重新赋值页码
 onMounted(() => {
   pageIndex.value = 1;
-  pageTotal.value = 24;
+  pageTotal.value = 27;
 });
 </script>
 <style scoped lang="scss">
@@ -64,7 +64,7 @@ onMounted(() => {
     width: 100%;
     height: 100vh;
     top: 0;
-    left: 220px;
+    /* left: 220px; */
     z-index: 1;
     background-color: rgba(255, 255, 255, 0.8);
   }

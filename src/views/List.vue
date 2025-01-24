@@ -49,7 +49,7 @@ import { useStore } from "../stores/index";
 import { storeToRefs } from "pinia";
 const store = useStore();
 
-let { activeCount, DrawerDataFlag } = storeToRefs(store); //在Pinia结构的值 查询到的数据数组
+let { activeCount, DrawerDataFlag, pageIndex } = storeToRefs(store); //在Pinia结构的值 查询到的数据数组
 
 const userObj = JSON.parse(localStorage.getItem("userObj")); //本地保存的用户信息
 
@@ -72,6 +72,8 @@ function changeRoute() {
   } else if (activeCount.value == 2) {
     router.push("/list/likefile");
   } else if (activeCount.value == 3) {
+    // 把页码重置为1
+    pageIndex.value = 1;
     router.push("/list/sharefile");
   } else if (activeCount.value == 4) {
     router.push("/list/userfile");
