@@ -7,7 +7,7 @@
         <div class="box" v-if="cardData.file_type == 0">
           <a-badge-ribbon :text="cardData.file_suffix" style="font-weight: 600; cursor: pointer">
             <div class="card" @click="showDrawer(index)">
-              <img :src="cardData.file_link" alt="" />
+              <img :src="processFileLink(cardData.file_link) + '?x-oss-process=image/resize,w_200'" alt="" />
               <span>
                 <i>{{ detailName(cardData.file_name) }}</i>
               </span>
@@ -19,7 +19,9 @@
           <a-badge-ribbon :text="cardData.file_suffix" color="pink" style="font-weight: 600">
             <div class="card" @click="showDrawer(index)">
               <i class="iconfont icon-bofang"></i>
-              <video :src="cardData.file_link"></video>
+              <!-- <video :src="cardData.file_link"></video> -->
+              <img :src="processFileLink(cardData.file_link) + '?x-oss-process=video/snapshot,t_1000,f_jpg,w_300'" alt="" />
+
               <span>
                 <i>{{ detailName(cardData.file_name) }}</i>
               </span>
@@ -136,6 +138,11 @@ dayjs.locale("zh-cn");
 const current = ref(1); //当前页码
 
 // -------------------------------------------------------------
+// 去掉链接中的时间戳
+function processFileLink(link) {
+  // 使用正则表达式匹配并去掉时间戳部分
+  return link.replace(/\?\d+$/, "");
+}
 
 // 取消展示名字后面的时间戳后缀
 function detailName(name) {
